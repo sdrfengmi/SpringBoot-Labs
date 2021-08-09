@@ -1,0 +1,57 @@
+# 多个 一主多从+表分片
+spring:
+  application:
+    name: shardingJdbcDemo
+  #shardingsphere相关配置
+  shardingsphere:
+    datasource:
+      names: db0,db1,db2,db3   #库名，只是名字 ******************新增名称db3
+      db0: #主库
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/master_db1?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db1: #主库1                         ****************** 添加主库
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/master_db2?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db2: #从库1
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db1?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db3: #从库2                          ******************添加从库
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db2?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+    sharding:
+      master-slave-rules: # 新增配置 ******************
+        db0: # 此处名字一定要配置和下面 master-data-source-name 名字一致的
+          master-data-source-name: db0
+          slave-data-source-names: db2
+        db1: # 此处名字一定要配置和下面 master-data-source-name 名字一致的
+          master-data-source-name: db1
+          slave-data-source-names: db3
+      tables: # 看到table "s" ，就知道可配置多个
+        my_table: # 指定表名，此名必须和model中 @TableName(value = "my_table") 一致
+          actualDataNodes: db$->{0..1}.my_table_$->{0..1} #******************每组有一主一从，所以是0..1
+          databaseStrategy:
+            inline: # 指定表的分片策略
+              shardingColumn: id #参与分片运算的列名
+              algorithmExpression: db$->{(id / 10).toBigInteger() % 2} # *******不能再用id%2方式了，会导致数据分配不均，所以需要自定义方法
+          tableStrategy:
+            inline: # 指定表的分片策略
+              shardingColumn: id #参与分片运算的列名
+              algorithmExpression: my_table_$->{id % 2} #分片算法
+          keyGenerator: # 指定表的主键生成策略
+            type: SNOWFLAKE  #SNOWFLAKE
+            column: id  #指定主键
+    props:
+      sql:
+        show: true #输出日志

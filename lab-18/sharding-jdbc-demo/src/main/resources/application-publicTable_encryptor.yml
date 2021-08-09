@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: shardingJdbcDemo
+  #shardingsphere相关配置
+  shardingsphere:
+    datasource:
+      names: db   #库名，只是名字
+      db: #数据源
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/master_db?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+    sharding: #指定表的分片规则
+      default-data-source-name: db #如果有多个库，公共表只有一个库有，那么，就要指定有公共表的库，否则会报找不到表
+      # 数据脱敏规则配置---start
+      encrypt-rule:
+        encryptors:
+          encryptor_MD5:
+            type: MD5
+            props:
+              md5.key.value: 123456
+          encryptor_aes:
+            # 加密、解密器的名字，内置的为MD5，aes.
+            # 可以自定义，实现
+            # org.apache.shardingsphere.encrypt.strategy.spi.Encryptor
+            # 或者
+            # org.apache.shardingsphere.encrypt.strategy.spi.QueryAssistedEncryptor
+            # 这两个接口即可
+            type: aes
+            props:
+              aes.key.value: 123456
+        tables:
+          # tables
+          my_table:
+            columns:
+              # 逻辑列,就是写SQL里面的列，因为实体类的名字和数据库的加密列一致，所以这里都是name
+              source:
+                # 原文列
+                # plainColumn: password
+                # 密文列，用来存储密文数据
+                cipherColumn: source
+                # 加密器名字
+                encryptor: encryptor_MD5
+                #  password1:
+                # 原文列
+                #     plainColumn: password1
+                # 密文列，用来存储密文数据
+                #   cipherColumn: aes_password
+                # 加密器名字
+              #   encryptor: encryptor_aes
+      # 数据脱敏规则配置---end
+      broadcast-tables: pub_table #公共表
+      tables: # 看到table "s" ，就知道可配置多个
+        my_table: # 指定表名，此名必须和model中 @TableName(value = "my_table") 一致
+          actualDataNodes: db.my_table_$->{0..1} #创建了两个表，下标0和1，所以此处配置你懂的
+          tableStrategy:
+            inline: # 指定表的分片策略
+              shardingColumn: id #参与分片运算的列名
+              algorithmExpression: my_table_$->{id % 2} #分片算法
+          keyGenerator: # 指定表的主键生成策略
+            type: SNOWFLAKE  #SNOWFLAKE
+            column: id  #指定主键
+    props:
+      sql:
+        show: true #输出日志
+      query.with.cipher.column: true #是否使用密文列查询
+

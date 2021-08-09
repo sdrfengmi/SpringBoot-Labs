@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: shardingJdbcDemo
+  #shardingsphere相关配置
+  shardingsphere:
+    datasource:
+      names: masterdb,slavedb1,slavedb2   #库名，只是名字
+      masterdb: #主库
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/master_db?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      slavedb1: #从库1
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db1?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      slavedb2: #从库2
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db2?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+
+    masterslave:
+      name: dbs
+      master-data-source-name: masterdb #主库
+      slave-data-source-names: slavedb1,slavedb2 #多个从库
+      load-balance-algorithm-type: ROUND_ROBIN #RANDOM随机  ROUND_ROBIN 轮训
+    props:
+      sql:
+        show: true #输出日志
+

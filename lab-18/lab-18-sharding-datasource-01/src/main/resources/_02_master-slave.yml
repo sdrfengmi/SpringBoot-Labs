@@ -1,0 +1,56 @@
+############################一主一从，读写分离#################################
+#服务端口
+server:
+  port: 56081
+#服务名
+spring:
+  application:
+    name: sharding-jdbc-examples
+  http:
+    encoding:
+      enabled: true
+      charset: utf-8
+      force: true
+  main:
+    allow-bean-definition-overriding: true
+  #shardingsphere相关配置
+  shardingsphere:
+    datasource:
+      names: m1,s1   #配置库的名字，随意
+      m1: #配置目前m1库的数据源信息
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.87.133:3306/user_db?useUnicode=true
+        username: root
+        password: 123456
+      s1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.87.134:3306/user_db?useUnicode=true
+        username: root
+        password: 123456
+    sharding:
+      master-slave-rules: #配置主从库的规则
+        ms: #随便起名，对应下面即可
+          master-data-source-name: m1  #主库
+          slave-data-source-names: s1  #从库，如果是多从库，以逗号结尾
+      tables:
+        t_user:
+          actual-data-nodes: ms.t_user    #对应实际的真实表
+      #masterslave:  # 主库从库逻辑数据源定义
+      # name: ms
+      # master-data-source-name: m1
+      #  slave-data-source-names: s1
+      # load-balance-algorithm-type: round_robin
+    props:
+      sql:
+        show: true   #打印sql
+
+
+#日志打印
+logging:
+  level:
+    root: info
+    org.springframework.web: info
+    com.lucifer.sharding.dao: debug
+    druid.sql: debug

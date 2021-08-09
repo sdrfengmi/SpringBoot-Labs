@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: shardingJdbcDemo
+  #shardingsphere相关配置
+  shardingsphere:
+    datasource:
+      names: db1,db2   #库名，只是名字
+      db1: #从库1
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db1?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db2: #从库2
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db2?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+    sharding: #指定表的分片规则
+      tables: # 看到table "s" ，就知道可配置多个
+        my_table: # 指定表名，此名必须和model中 @TableName(value = "my_table") 一致
+          actualDataNodes: db1.my_table
+        pub_table:
+          actualDataNodes: db2.pub_table
+    props:
+      sql:
+        show: true #输出日志
+

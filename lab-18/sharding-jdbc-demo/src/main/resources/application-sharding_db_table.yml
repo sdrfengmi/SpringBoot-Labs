@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: shardingJdbcDemo
+  #shardingsphere相关配置
+  shardingsphere:
+    datasource:
+      names: db0,db1,db2   #库名，只是名字
+      db0: #主库
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/master_db?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db1: #从库1
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db1?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db2: #从库2
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db2?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+    sharding: #指定表的分片规则
+      tables: # 看到table "s" ，就知道可配置多个
+        my_table: # 指定表名，此名必须和model中 @TableName(value = "my_table") 一致
+          actualDataNodes: db$->{0..2}.my_table_$->{0..1} #创建了两个表，下标0和1，所以此处配置你懂的
+          databaseStrategy:
+            inline: # 指定表的分片策略
+              shardingColumn: id #参与分片运算的列名
+              algorithmExpression: db$->{id % 3} #分片算法,分了三个库，所以要%3
+          tableStrategy:
+            inline: # 指定表的分片策略
+              shardingColumn: id #参与分片运算的列名
+              algorithmExpression: my_table_$->{id % 2} #分片算法
+          keyGenerator: # 指定表的主键生成策略
+            type: SNOWFLAKE  #SNOWFLAKE
+            column: id  #指定主键
+
+    props:
+      sql:
+        show: true #输出日志
+

@@ -1,0 +1,56 @@
+#一主多从+表分片
+spring:
+  application:
+    name: shardingJdbcDemo
+  #shardingsphere相关配置
+  shardingsphere:
+    datasource:
+      names: db0,db1,db2   #库名，只是名字
+      db0: #主库
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/master_db?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db1: #从库1
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db1?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+      db2: #从库2
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/slave_db2?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT
+        username: root
+        password: 123
+
+
+    masterSlaveRule: # 这里配置这个规则的话,相当于是全局读写分离配置
+      name: ds_rw # 名称,合法的字符串即可,但如果涉及到在读写分离的基础上设置分库分表,则名称需要有意义才可以,另外,虽然目前没有强制要求,但主从库配置需要配置在实际关联的主从库上,如果配置的数据源之间主从是断开的状态,那么可能会发生写入的数据对于只读会话无法读取到的问题
+      # 如果一个会话发生了写入并且没有提交(显式打开事务),sharidng sphere在后续的路由中,select都会在主库执行,直到会话提交
+      masterDataSourceName: db0 # 主库的DataSource名称
+      slaveDataSourceNames: # 从库的DataSource列表,至少需要有一个
+        - db1
+        - db2
+      loadBalanceAlgorithmType: ROUND_ROBIN #从库负载均衡算法类型，可选值：ROUND_ROBIN，RANDOM。若loadBalanceAlgorithmClassName存在则忽略该配置,默认为ROUND_ROBIN
+    sharding: #指定表的分片规则
+      tables: # 看到table "s" ，就知道可配置多个
+        my_table: # 指定表名，此名必须和model中 @TableName(value = "my_table") 一致
+          actualDataNodes: db$->{0..2}.my_table_$->{0..1} #创建了两个表，下标0和1，所以此处配置你懂的
+          databaseStrategy:
+            inline: # 指定表的分片策略
+              shardingColumn: id #参与分片运算的列名
+              algorithmExpression: db$->{id % 3} #分片算法,分了三个库，所以要%3
+          tableStrategy:
+            inline: # 指定表的分片策略
+              shardingColumn: id #参与分片运算的列名
+              algorithmExpression: my_table_$->{id % 2} #分片算法
+          keyGenerator: # 指定表的主键生成策略
+            type: SNOWFLAKE  #SNOWFLAKE
+            column: id  #指定主键
+
+    props:
+      sql:
+        show: true #输出日志
+
