@@ -65,6 +65,7 @@
 * [《性能测试 —— Tomcat、Jetty、Undertow 基准测试》](http://www.iocoder.cn/Performance-Testing/Tomcat-Jetty-Undertow-benchmark/?github) 对应 [lab-05-benchmark-tomcat-jetty-undertow](https://github.com/YunaiV/SpringBoot-Labs/tree/master/lab-05-benchmark-tomcat-jetty-undertow)
 * [《性能测试 —— SpringMVC、Webflux 基准测试》](http://www.iocoder.cn/Performance-Testing/SpringMVC-Webflux-benchmark/?github) 对应 [lab-06](https://github.com/YunaiV/SpringBoot-Labs/tree/master/lab-06)
 * [《芋道 Spring Boot API 接口文档 JApiDocs 入门》](http://www.iocoder.cn/Spring-Boot/JApiDocs/?github) 对应 [lab-24](https://github.com/YunaiV/SpringBoot-Labs/tree/master/lab-24)
+* [《芋道 Spring Boot API 接口文档 ShowDoc 入门》](http://www.iocoder.cn/Spring-Boot/ShowDoc/?github) 对应 [lab-24](https://github.com/YunaiV/SpringBoot-Labs/tree/master/lab-24)
 * [《芋道 Spring Boot API 接口调试 IDEA HTTP Client》](http://www.iocoder.cn/Spring-Boot/IDEA-HTTP-Client/?github) 对应 [lab-71-http-debug](https://github.com/YunaiV/SpringBoot-Labs/blob/master/lab-71-http-debug/)
 
 ## RPC 开发
@@ -78,6 +79,10 @@
 * [《芋道 Spring Boot Motan 入门》](http://www.iocoder.cn/Spring-Boot/Motan/?github) 对应 [lab-63](https://github.com/YunaiV/SpringBoot-Labs/tree/master/lab-63)
 * 《芋道 Spring Boot RSocket 入门》计划中...
 * 《芋道 Spring Boot Tars 入门》计划中...
+
+## 文件存储
+
+* [《芋道 Spring Boot 对象存储 MinIO 入门》](https://www.iocoder.cn/Spring-Boot/MinIO/?github) 对应 [lab-72-minio](https://github.com/YunaiV/SpringBoot-Labs/tree/master/lab-72-minio)
 
 ## 数据访问
 
